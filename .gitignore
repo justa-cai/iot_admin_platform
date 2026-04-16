@@ -1,0 +1,23 @@
+# IoT Admin
+
+# Data
+*.db
+data/
+
+# Backend
+backend/iot-admin-server
+
+# Frontend
+frontend/dist/
+frontend/node_modules/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env

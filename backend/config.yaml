@@ -1,0 +1,15 @@
+server:
+  port: 8080
+  read_timeout: 10s
+  write_timeout: 10s
+
+database:
+  path: "./data/iot_admin.db"
+
+mqtt:
+  tcp_port: 1883
+  ws_port: 8083
+
+jwt:
+  secret: "iot-admin-secret-key-change-in-production"
+  expire_time: 24h

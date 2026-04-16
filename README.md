@@ -6,6 +6,8 @@
 
 基于 MQTT 的全栈 IoT 管理平台，包含嵌入式 MQTT Broker、设备管理、规则引擎、实时数据可视化与固件 OTA 升级
 
+**[English](README_EN.md)** | 中文
+
 [![Go](https://img.shields.io/badge/Go-1.23+-00ADD8?style=flat&logo=go)](https://go.dev/)
 [![Vue](https://img.shields.io/badge/Vue-3.5-4FC08D?style=flat&logo=vue.js)](https://vuejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6-3178C6?style=flat&logo=typescript)](https://www.typescriptlang.org/)
@@ -17,62 +19,62 @@
 
 ---
 
-## Screenshots
+## 界面预览
 
 <table>
 <tr>
-<td width="50%"><img src="docs/screenshots/dashboard.png" alt="Dashboard"/></td>
-<td width="50%"><img src="docs/screenshots/devices.png" alt="Devices"/></td>
+<td width="50%"><img src="docs/screenshots/dashboard.png" alt="仪表盘"/></td>
+<td width="50%"><img src="docs/screenshots/devices.png" alt="设备管理"/></td>
 </tr>
 <tr>
-<td align="center"><b>Dashboard</b> - 实时统计、吞吐量趋势、设备状态分布</td>
-<td align="center"><b>Device Management</b> - 设备列表、搜索筛选、分组标签</td>
+<td align="center"><b>仪表盘</b> - 实时统计卡片、消息吞吐量趋势、设备状态分布</td>
+<td align="center"><b>设备管理</b> - 设备列表、搜索筛选、分组标签管理</td>
 </tr>
 <tr>
-<td width="50%"><img src="docs/screenshots/rules.png" alt="Rules"/></td>
-<td width="50%"><img src="docs/screenshots/messages.png" alt="Messages"/></td>
+<td width="50%"><img src="docs/screenshots/rules.png" alt="规则引擎"/></td>
+<td width="50%"><img src="docs/screenshots/messages.png" alt="消息历史"/></td>
 </tr>
 <tr>
-<td align="center"><b>Rule Engine</b> - 规则管理、Topic 匹配、告警触发</td>
-<td align="center"><b>Message History</b> - 消息历史查询、遥测数据展示</td>
+<td align="center"><b>规则引擎</b> - Topic 通配符匹配、条件评估、告警触发</td>
+<td align="center"><b>消息历史</b> - 消息查询、Topic 搜索、时间范围筛选</td>
 </tr>
 <tr>
-<td width="50%"><img src="docs/screenshots/telemetry.png" alt="Telemetry"/></td>
-<td width="50%"><img src="docs/screenshots/firmware.png" alt="Firmware"/></td>
+<td width="50%"><img src="docs/screenshots/telemetry.png" alt="数据查询"/></td>
+<td width="50%"><img src="docs/screenshots/firmware.png" alt="固件管理"/></td>
 </tr>
 <tr>
-<td align="center"><b>Telemetry</b> - 数据查询、时间范围选择、趋势图表</td>
-<td align="center"><b>Firmware OTA</b> - 固件管理、OTA 升级任务</td>
+<td align="center"><b>数据查询</b> - 遥测数据趋势图表、时间范围快速选择</td>
+<td align="center"><b>固件管理</b> - 固件上传、SHA256 校验、OTA 升级任务</td>
 </tr>
 </table>
 
 ---
 
-## Architecture
+## 系统架构
 
 ```
 ┌──────────────┐     ┌───────────────────────────────────────────┐
 │              │     │            IoT Admin Server                │
-│  IoT Devices │     │                                           │
+│  IoT 设备    │     │                                           │
 │  (MQTT 5.0)  ├────►│  ┌─────────────┐   ┌──────────────────┐  │
-│              │     │  │ Mochi MQTT  │   │   Rule Engine     │  │
-│  Temperature │ TCP │  │   Broker    ├──►│  Topic Matching   │  │
-│  Humidity    ├────►│  │  :1883      │   │  Condition Eval   │  │
-│  Pressure    │ WS  │  │  :8083      │   │  Alert/Publish    │  │
-│  GPS ...     ├────►│  └──────┬──────┘   └──────────────────┘  │
+│              │     │  │ Mochi MQTT  │   │    规则引擎       │  │
+│  温湿度传感器 │ TCP │  │   Broker    ├──►│  Topic 通配匹配   │  │
+│  压力传感器   ├────►│  │  :1883      │   │  条件评估         │  │
+│  GPS 定位器  │ WS  │  │  :8083      │   │  告警/转发        │  │
+│  烟雾报警器  ├────►│  └──────┬──────┘   └──────────────────┘  │
 │              │     │         │                                  │
 └──────────────┘     │  ┌──────▼──────┐   ┌──────────────────┐  │
-                     │  │  OnPublish  │   │  WebSocket Hub   │  │
-┌──────────────┐     │  │    Hook     ├──►│  Real-time Push  │  │
+                     │  │ OnPublish   │   │  WebSocket Hub   │  │
+┌──────────────┐     │  │   Hook      ├──►│   实时推送       │  │
 │              │     │  └──────┬──────┘   └────────┬─────────┘  │
-│   Browser    │     │         │                    │            │
+│   浏览器     │     │         │                    │            │
 │  (Vue 3 SPA) │◄────│  ┌──────▼──────┐            │            │
 │              │ WS  │  │   SQLite    │            │            │
-│  Dashboard   ├────►│  │  (WAL mode) │            │            │
-│  Console ... │ API │  └─────────────┘            │            │
+│  仪表盘      ├────►│  │  (WAL 模式) │            │            │
+│  控制台      │ API │  └─────────────┘            │            │
 │              ├────►│                              │            │
 └──────────────┘     │  ┌───────────────┐  ┌───────▼─────────┐  │
-                     │  │  Gin REST API │  │  Static Files   │  │
+                     │  │  Gin REST API │  │   静态文件       │  │
                      │  │  :8080        │  │  (Vue SPA)      │  │
                      │  └───────────────┘  └─────────────────┘  │
                      └───────────────────────────────────────────┘
@@ -80,204 +82,204 @@
 
 ---
 
-## Tech Stack
+## 技术栈
 
-| Layer | Technology | Description |
-|-------|-----------|-------------|
-| **Backend** | Go 1.23 + Gin | High-performance HTTP framework |
-| **MQTT Broker** | [Mochi MQTT v2](https://github.com/mochi-mqtt/server) | Embedded broker, TCP + WebSocket |
-| **Database** | SQLite (WAL) | Zero-config, single-file deployment |
-| **Frontend** | Vue 3 + TypeScript + Element Plus | SPA with component auto-import |
-| **Charts** | ECharts | Real-time data visualization |
-| **State** | Pinia | Vue 3 state management |
-| **Auth** | JWT + bcrypt | Role-based access control |
-| **Deploy** | Single Binary | Go embeds Vue SPA static files |
+| 层级 | 技术 | 说明 |
+|------|------|------|
+| **后端** | Go 1.23 + Gin | 高性能 HTTP 框架 |
+| **MQTT Broker** | [Mochi MQTT v2](https://github.com/mochi-mqtt/server) | 嵌入式 Broker，TCP + WebSocket 双协议 |
+| **数据库** | SQLite (WAL) | 零配置、单文件部署 |
+| **前端** | Vue 3 + TypeScript + Element Plus | SPA 组件自动导入 |
+| **图表** | ECharts | 实时数据可视化 |
+| **状态管理** | Pinia | Vue 3 状态管理 |
+| **认证** | JWT + bcrypt | 基于角色的访问控制 |
+| **部署** | 单二进制 | Go 嵌入 Vue SPA 静态文件 |
 
 ---
 
-## Features
+## 功能特性
 
-### Device Management
-- Device CRUD with auto-generated credentials (Key/Secret)
-- Device grouping with hierarchical tree structure
-- Flexible tagging system with custom colors
-- Online/offline status tracking via MQTT hooks
-- Rich metadata support (location, model, firmware version)
+### 设备管理
+- 设备 CRUD，自动生成凭证（Key / Secret）
+- 分层分组树形管理
+- 灵活的标签系统，支持自定义颜色
+- MQTT Hook 实现在线 / 离线状态追踪
+- 丰富元数据支持（位置、型号、固件版本）
 
 ### MQTT Broker
-- Embedded Mochi MQTT v2, no external dependency
-- TCP (`:1883`) + WebSocket (`:8083`) dual protocol
-- Device authentication via Key/Secret
-- Auto online/offline status on connect/disconnect
-- Message interception via OnPublish hook
+- 嵌入式 Mochi MQTT v2，无需外部依赖
+- TCP (`:1883`) + WebSocket (`:8083`) 双协议
+- 设备 Key / Secret 认证
+- 自动上下线状态管理
+- OnPublish Hook 消息拦截
 
-### Rule Engine
-- Topic wildcard matching (`telemetry/+/data`)
-- Condition evaluation: `gt`, `gte`, `lt`, `lte`, `eq`, `neq`, `contains`
-- Actions: Alert notification, MQTT publish, HTTP forward
-- Configurable cooldown period per rule
-- Rule execution log with trigger history
+### 规则引擎
+- Topic 通配符匹配（如 `telemetry/+/data`）
+- 条件评估：`gt`、`gte`、`lt`、`lte`、`eq`、`neq`、`contains`
+- 动作类型：告警通知、MQTT 消息转发、HTTP Webhook
+- 可配置冷却时间，避免告警风暴
+- 规则执行日志记录
 
-### Real-time Dashboard
-- 4 KPI stat cards (total devices, online, messages today, active rules)
-- Message throughput trend chart (6h/12h/24h/3d)
-- Device status distribution pie chart
-- Recent alerts table
+### 实时仪表盘
+- 4 个 KPI 统计卡片（设备总数、在线设备、今日消息、活跃规则）
+- 消息吞吐量趋势图（6h / 12h / 24h / 3d）
+- 设备状态分布饼图
+- 最近告警列表
 
-### Telemetry & Messages
-- Real-time message console via WebSocket
-- Message history with topic search and date filtering
-- Telemetry data query with time range selector
-- Quick time range buttons (1h/6h/24h/7d/30d)
+### 遥测与消息
+- WebSocket 实时消息控制台
+- 消息历史查询，支持 Topic 搜索与时间筛选
+- 遥测数据趋势图表
+- 快捷时间范围按钮（1h / 6h / 24h / 7d / 30d）
 
-### Firmware OTA
-- Firmware upload with SHA256 checksum verification
-- Batch OTA upgrade task creation
-- Upgrade progress and status tracking
-- Firmware download endpoint
+### 固件 OTA
+- 固件上传，SHA256 校验
+- 批量 OTA 升级任务创建
+- 升级进度与状态追踪
+- 固件下载接口
 
-### System
-- JWT authentication with token refresh
-- RBAC: Admin / Operator / Viewer roles
-- User management (CRUD, password reset)
-- CORS support for cross-origin access
+### 系统管理
+- JWT 认证，支持 Token 刷新
+- RBAC 权限：管理员 / 操作员 / 观察者
+- 用户管理（增删改查、密码重置）
+- CORS 跨域支持
 
 ---
 
-## Quick Start
+## 快速开始
 
-### Prerequisites
+### 环境要求
 
-- Go 1.23+ (with CGO enabled for SQLite)
+- Go 1.23+（需启用 CGO，用于 SQLite）
 - Node.js 18+
 - npm
 
-### 1. Clone & Install
+### 1. 克隆与安装
 
 ```bash
-git clone https://github.com/yourname/iot_admin.git
-cd iot_admin
+git clone https://github.com/justa-cai/iot_admin_platform.git
+cd iot_admin_platform
 
-# Install frontend dependencies
+# 安装前端依赖
 cd frontend && npm install && cd ..
 ```
 
-### 2. Start Development
+### 2. 启动开发服务
 
 ```bash
-# Terminal 1 - Backend (API :8080 + MQTT :1883 + WS :8083)
+# 终端 1 - 后端（API :8080 + MQTT :1883 + WS :8083）
 make backend-dev
 
-# Terminal 2 - Frontend (Vite dev server :5173)
+# 终端 2 - 前端（Vite 开发服务器 :5173）
 make frontend-dev
 ```
 
-Open http://localhost:5173 and login with `admin` / `admin123`
+打开 http://localhost:5173，使用 `admin` / `admin123` 登录
 
-### 3. Production Build
+### 3. 生产构建
 
 ```bash
 make build
 ./iot-admin-server
 ```
 
-Single binary serves API + MQTT + static frontend on port `:8080`.
+单二进制文件同时提供 API + MQTT + 前端服务。
 
-### 4. Seed Demo Data
+### 4. 填充演示数据
 
 ```bash
 python3 loadtest/seed_demo.py
 ```
 
-This populates the database with 20 devices, 5 groups, 7 tags, 6 rules, and 4 users.
+自动创建 20 个设备、5 个分组、7 个标签、6 条规则和 4 个用户。
 
 ---
 
-## Project Structure
+## 项目结构
 
 ```
 iot_admin/
 ├── backend/
-│   ├── cmd/server/main.go           # Entry point
+│   ├── cmd/server/main.go           # 入口文件
 │   ├── internal/
-│   │   ├── api/                     # Gin handlers + middleware
-│   │   │   ├── handler/             # Auth, Device, Rule, Dashboard...
-│   │   │   ├── middleware/          # JWT auth, CORS
-│   │   │   └── router.go           # API route definitions
-│   │   ├── config/                  # Viper config management
-│   │   ├── model/                   # Data models
-│   │   ├── mqtt/                    # Mochi broker + hooks
-│   │   ├── rule/                    # Rule engine (matching + actions)
-│   │   ├── store/sqlite/            # SQLite data access layer
-│   │   └── ws/                      # WebSocket hub
+│   │   ├── api/                     # Gin 处理器 + 中间件
+│   │   │   ├── handler/             # Auth、Device、Rule、Dashboard 等
+│   │   │   ├── middleware/          # JWT 认证、CORS
+│   │   │   └── router.go           # API 路由定义
+│   │   ├── config/                  # Viper 配置管理
+│   │   ├── model/                   # 数据模型
+│   │   ├── mqtt/                    # Mochi Broker + Hooks
+│   │   ├── rule/                    # 规则引擎（匹配 + 动作）
+│   │   ├── store/sqlite/            # SQLite 数据访问层
+│   │   └── ws/                      # WebSocket Hub
 │   ├── config.yaml
 │   └── go.mod
 ├── frontend/
 │   ├── src/
-│   │   ├── api/                     # Axios API clients
-│   │   ├── components/              # StatCard, LineChart, GaugeChart
-│   │   ├── composables/             # useWebSocket, useECharts
-│   │   ├── layouts/                 # AdminLayout, AuthLayout
-│   │   ├── router/                  # Vue Router config
-│   │   ├── stores/                  # Pinia stores
-│   │   ├── styles/                  # Global SCSS theme
-│   │   ├── types/                   # TypeScript interfaces
-│   │   └── views/                   # Page components
+│   │   ├── api/                     # Axios API 客户端
+│   │   ├── components/              # StatCard、LineChart、GaugeChart
+│   │   ├── composables/             # useWebSocket、useECharts
+│   │   ├── layouts/                 # AdminLayout、AuthLayout
+│   │   ├── router/                  # Vue Router 路由配置
+│   │   ├── stores/                  # Pinia 状态管理
+│   │   ├── styles/                  # 全局 SCSS 主题
+│   │   ├── types/                   # TypeScript 类型定义
+│   │   └── views/                   # 页面组件
 │   └── vite.config.ts
 ├── clients/
-│   ├── go/                          # Go MQTT publisher/subscriber
-│   └── python/                      # Python MQTT publisher/subscriber
+│   ├── go/                          # Go MQTT 发布/订阅客户端
+│   └── python/                      # Python MQTT 发布/订阅客户端
 ├── loadtest/
-│   ├── main.go                      # Go concurrent load test
-│   ├── seed_demo.py                 # Demo data seeder
-│   └── demo_sim.py                  # Device simulator
-├── docs/screenshots/                # UI screenshots
+│   ├── main.go                      # Go 并发负载测试
+│   ├── seed_demo.py                 # 演示数据填充脚本
+│   └── demo_sim.py                  # 设备模拟器
+├── docs/screenshots/                # UI 截图
 ├── Makefile
 └── .gitignore
 ```
 
 ---
 
-## API Endpoints
+## API 接口
 
-| Method | Path | Description |
-|--------|------|-------------|
-| **Auth** | | |
-| POST | `/api/v1/auth/login` | Login, returns JWT |
-| POST | `/api/v1/auth/register` | Register (admin only) |
-| GET | `/api/v1/auth/profile` | Current user info |
-| **Devices** | | |
-| GET/POST | `/api/v1/devices` | List / Create devices |
-| GET/PUT/DELETE | `/api/v1/devices/:id` | Get / Update / Delete |
-| **Groups & Tags** | | |
-| CRUD | `/api/v1/groups` | Group management |
-| CRUD | `/api/v1/tags` | Tag management |
-| **Messages** | | |
-| POST | `/api/v1/messages/publish` | Publish MQTT message |
-| GET | `/api/v1/messages/history` | Message history |
-| GET | `/api/v1/messages/topics` | Topic tree |
-| **Rules** | | |
-| CRUD | `/api/v1/rules` | Rule management |
-| PUT | `/api/v1/rules/:id/enable` | Enable/disable rule |
-| GET | `/api/v1/rules/:id/logs` | Rule execution logs |
-| **Telemetry** | | |
-| GET | `/api/v1/telemetry` | Query telemetry data |
-| GET | `/api/v1/telemetry/latest` | Latest data per device |
-| **Dashboard** | | |
-| GET | `/api/v1/dashboard/stats` | Statistics overview |
-| GET | `/api/v1/dashboard/throughput` | Throughput chart data |
-| **Firmware** | | |
-| POST | `/api/v1/firmware/upload` | Upload firmware |
-| GET | `/api/v1/firmware/:id/download` | Download firmware |
-| POST | `/api/v1/ota` | Create OTA upgrade |
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| **认证** | | |
+| POST | `/api/v1/auth/login` | 登录，返回 JWT |
+| POST | `/api/v1/auth/register` | 注册（仅管理员） |
+| GET | `/api/v1/auth/profile` | 当前用户信息 |
+| **设备** | | |
+| GET/POST | `/api/v1/devices` | 设备列表 / 创建设备 |
+| GET/PUT/DELETE | `/api/v1/devices/:id` | 设备详情 / 更新 / 删除 |
+| **分组与标签** | | |
+| CRUD | `/api/v1/groups` | 分组管理 |
+| CRUD | `/api/v1/tags` | 标签管理 |
+| **消息** | | |
+| POST | `/api/v1/messages/publish` | 发布 MQTT 消息 |
+| GET | `/api/v1/messages/history` | 消息历史 |
+| GET | `/api/v1/messages/topics` | Topic 树 |
+| **规则** | | |
+| CRUD | `/api/v1/rules` | 规则管理 |
+| PUT | `/api/v1/rules/:id/enable` | 启用 / 禁用规则 |
+| GET | `/api/v1/rules/:id/logs` | 规则执行日志 |
+| **遥测** | | |
+| GET | `/api/v1/telemetry` | 查询遥测数据 |
+| GET | `/api/v1/telemetry/latest` | 各设备最新数据 |
+| **仪表盘** | | |
+| GET | `/api/v1/dashboard/stats` | 统计概览 |
+| GET | `/api/v1/dashboard/throughput` | 吞吐量图表数据 |
+| **固件** | | |
+| POST | `/api/v1/firmware/upload` | 上传固件 |
+| GET | `/api/v1/firmware/:id/download` | 下载固件 |
+| POST | `/api/v1/ota` | 创建 OTA 升级任务 |
 | **WebSocket** | | |
-| WS | `/api/v1/ws` | Real-time event stream |
+| WS | `/api/v1/ws` | 实时事件推送 |
 
 ---
 
-## Load Test Results
+## 负载测试
 
-100 concurrent devices, 500ms publish interval:
+100 个并发设备，500ms 发送间隔：
 
 ```
 === Final Results ===
@@ -289,18 +291,18 @@ Connected:       100 / 100
 ```
 
 ```bash
-# Run your own load test
+# 运行负载测试
 make loadtest
 
-# Custom parameters
+# 自定义参数
 NUM_DEVICES=200 MSG_INTERVAL_MS=200 DURATION_SECS=60 make loadtest
 ```
 
 ---
 
-## IoT Client Examples
+## IoT 客户端示例
 
-### Go Publisher
+### Go 发布端
 
 ```go
 opts := mqtt.NewClientOptions().AddBroker("tcp://localhost:1883")
@@ -315,7 +317,7 @@ payload, _ := json.Marshal(map[string]interface{}{
 client.Publish("telemetry/device-001/data", 0, false, payload)
 ```
 
-### Python Subscriber
+### Python 订阅端
 
 ```python
 import paho.mqtt.client as mqtt
@@ -331,9 +333,9 @@ client.loop_forever()
 
 ---
 
-## Configuration
+## 配置说明
 
-`backend/config.yaml`:
+`backend/config.yaml`：
 
 ```yaml
 server:
@@ -353,6 +355,6 @@ jwt:
 
 ---
 
-## License
+## 许可证
 
 [MIT](LICENSE)
